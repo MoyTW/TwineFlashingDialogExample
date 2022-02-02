@@ -1,0 +1,47 @@
+:: StoryTitle
+Flashing Dialog Timer Example
+
+
+:: StoryData
+{
+	"ifid": "532D481D-F971-4209-ACED-33CFD818D24B"
+}
+
+
+:: Start
+<<button 'Show Blinking Dialog'>>
+  <<script>>
+    Dialog.setup('Timer Dialog');
+    Dialog.wiki(Story.get('BlinkingDialogPassage').processText());
+    Dialog.open();
+  <</script>>
+<</button>>
+<<script>>
+  // Clean up the timers on dialog closed so you don't spawn new timers every open.
+  // If there's a nicer way to do it advice would be welcome!
+  $(document).on(':dialogclosed', function (ev) {
+    const timers = Macro.get('repeat').timers
+    for (let timerId of timers) {
+      clearInterval(timerId);
+      timers.delete(timerId);
+    }
+  })
+<</script>>
+
+
+:: BlinkingDialogPassage
+<<set _currentTime to 1>>\
+Current time is @@#time-display;_currentTime@@
+
+<<button 'Example button (nonfunctional)'>><</button>>
+<<silently>>
+  <<repeat 1s>>
+    <<set _currentTime to _currentTime + 1>>
+
+    /* It does not blink without this replace */
+    <<replace '#time-display'>>_currentTime<</replace>>
+
+    /* Using run & a selector also causes it to blink */
+    /* <<run $('#time-display').text(State.temporary.currentTime)>> */
+  <</repeat>>
+<</silently>>
